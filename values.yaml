@@ -46,7 +46,7 @@ global:
 injector:
   # True if you want to enable vault agent injection.
   # @default: global.enabled
-  enabled: "-"
+  enabled: false
 
   replicas: 1
 
@@ -342,8 +342,7 @@ injector:
   # A disruption budget limits the number of pods of a replicated application
   # that are down simultaneously from voluntary disruptions
   podDisruptionBudget: {}
-  # podDisruptionBudget:
-  #   maxUnavailable: 1
+    #maxUnavailable: 1
 
   # strategy for updating the deployment. This can be a multi-line string or a
   # YAML map.
@@ -937,10 +936,16 @@ server:
         address = "[::]:8200"
         cluster_address = "[::]:8201"
       }
-      storage "consul" {
-        path = "vault"
-        address = "HOST_IP:8500"
+      seal "awskms" {
+          region     = "eu-west-1"
+          kms_key_id = "533ffa6c-5702-4423-8c07-7ae3adaf3138"
       }
+      storage "postgresql" {
+        connection_url = "postgres://vault:ge5MNnXfBXHFLW1xc4bf@postgre-dev-rds-ew1-01.czwe8eg2u3zm.eu-west-1.rds.amazonaws.com:5432/vaulttest",
+        table="vault_kv_store",
+        ha_enabled=true,
+        ha_table="vault_ha_locks" 
+      }  
 
       service_registration "kubernetes" {}
 
@@ -1343,3 +1348,4 @@ serverTelemetry:
       #    for: 5m
       #    labels:
       #      severity: critical
+
